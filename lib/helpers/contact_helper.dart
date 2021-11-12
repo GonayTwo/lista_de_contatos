@@ -14,13 +14,14 @@ class ContactHelper{
   factory ContactHelper() => _instance;
   ContactHelper.internal();
 
-  Database _db;
+  Database? _db;
+
   Future<Database> get db async{
     if(_db != null){
-      return _db;
+      return _db!;
     }else{
       _db = await initDb();
-      return _db;
+      return _db!;
     }
   }
   Future<Database>initDb() async{
@@ -47,7 +48,7 @@ class ContactHelper{
     Database dbContact = await db;
     return await dbContact.update(contactTable, contact.toMap(), where: "$idColumn = ?",whereArgs: [contact.id]);
   }
-  Future<Contact> getContact(int id) async {
+  Future<Contact?> getContact(int id) async {
     Database dbContact = await db;
     List<Map> maps = await dbContact.query(contactTable,columns: [idColumn,nameColumn,emailColumn,phoneColumn,imgColumn],
     where: "$idColumn = ?",whereArgs: [id]);
@@ -60,7 +61,7 @@ class ContactHelper{
   Future<List>getAllContacts() async{
     Database dbContact = await db;
     List listMap = await dbContact.rawQuery("SELECT * FROM $contactTable");
-    List<Contact> listContact = List();
+    List<Contact> listContact = [];
     for(Map m in listMap){
       listContact.add(Contact.fromMap(m));
     }
@@ -79,11 +80,13 @@ class ContactHelper{
 
 
 class Contact{
-  int id;
-  String name;
-  String email;
-  String phone;
-  String img;
+  int id =0;
+  String name ='';
+  String email='';
+  String phone='';
+  String img='';
+
+ // Contact();
 
   Contact.fromMap(Map map){
     id = map[idColumn];
@@ -93,7 +96,7 @@ class Contact{
     img = map[imgColumn];
   }
 
-  Map toMap() {
+  Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       nameColumn: name,
       emailColumn: email,
@@ -101,7 +104,7 @@ class Contact{
       imgColumn: img
     };
     if(id != null){
-      Map[idColumn] = id;
+      map[idColumn] = id;
     }
     return map;
   }
